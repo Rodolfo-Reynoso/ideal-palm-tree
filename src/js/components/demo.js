@@ -1,13 +1,36 @@
-window.addEventListener(
-    "keydown",
+let player1Position = 0
+let player2Position = 0
+let playerMovementSpeed = 10
+let player1 = document.getElementById("controllerPlayer1")
+let player2 = document.getElementById("controllerPlayer2")
+
+
+window.addEventListener("keydown",
     (event) => {
-      console.log(event.keyCode)
-    },
-    true,
+     
+      // Player 1
+      if(event.code == 'KeyW') {
+        player1Position +=playerMovementSpeed
+        player1.style.bottom = player1Position + 'px'
+      }
+      if(event.code == 'KeyS') {
+        player1Position -=playerMovementSpeed
+        player1.style.bottom = player1Position + 'px'
+
+      }
+
+      // Player 2
+      if(event.code == 'ArrowUp') {
+
+        player2Position +=playerMovementSpeed
+        player2.style.bottom = player2Position + 'px'
+      }
+      if(event.code == 'ArrowDown') {
+
+        player2Position -=playerMovementSpeed
+        player2.style.bottom = player2Position + 'px'
+      }
+
+    }
   );
 
-
-//   Left Arrow Key: 37
-//   Right Arrow Key: 39
-//   Down Arrow Key: 40
-//   Up Arrow Key: 38
