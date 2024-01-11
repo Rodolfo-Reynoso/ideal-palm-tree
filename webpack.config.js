@@ -1,15 +1,16 @@
 const path = require('path');
+const HTMLWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     module: {
         rules: [
             {
-            test: /\.(sa|sc)ss$/,
-            use: [
-                'style-loader',
-                'css-loader',
-                'sass-loader',
-            ],
+                test: /\.(sa|sc)ss$/,
+                use: [
+                    'style-loader',
+                    'css-loader',
+                    'sass-loader',
+                ],
             },
         ],
     },
@@ -18,5 +19,17 @@ module.exports = {
         filename: 'bundle.js',  // Output bundle file
         path: path.resolve(__dirname, 'dist'),  // Output directory
     },
-    mode: 'none'
+    // watch: false,
+    mode: 'development',
+    devServer: {
+        port: '8080',
+        static: './',
+        hot: true, // Enable Hot Module Replacement
+    },
+    plugins: [
+        new HTMLWebpackPlugin({
+            title: 'jOHn pONg',
+            template: 'src/template.html'
+        })
+    ],
 };
