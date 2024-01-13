@@ -1,2 +1,3 @@
 import "../styles/main.sass"
-import "./components/demo.js"
+import "./components/canvas.js"
+// import "./components/controls.js"
