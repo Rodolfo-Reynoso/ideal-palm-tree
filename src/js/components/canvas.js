@@ -5,52 +5,129 @@ canvas.width = window.innerWidth
 canvas.height = window.innerHeight
 
 class Paddle {
-    constructor({position}) {
-        this.position = position
-        this.velocity = {
-            x: 0,
-            y: 0
-        }
-        this.width = 10
-        this.height = 100
+    constructor( {position}, color) {
+      this.position = position
+      this.color = color
+      this.velocity = {
+        x: 0,
+        y: 0,
+      }
+      this.width = 10
+      this.height = 100
     }
 
     draw() {
-        c.fillStyle= 'white'
-        c.fillRect(this.position.x, this.position.y, this.width, this.height)
+      c.fillStyle = this.color
+      c.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 
     update() {
-        this.draw()
+      this.draw()
+
+      if (
+        this.position.y + this.velocity.y > 0 &&
+        this.position.y + this.height + this.velocity.y < canvas.height
+      )
         this.position.y += this.velocity.y
     }
-}
+  }
 
-const paddle1 = new Paddle({
-    position: {
-        x: 10,
-        y: 100
+  class Ball {
+    constructor({ position }) {
+      this.position = position
+
+      const speed = 2
+      const direction = {
+        x: Math.random() - 0.5 >= 0 ? -speed : speed,
+        y: Math.random() - 0.5 >= 0 ? -speed : speed,
+      }
+      this.velocity = {
+        x: direction.x,
+        y: direction.y,
+      }
+
+      this.width = 40
+      this.height = 40
     }
-})
 
-const paddle2 = new Paddle({
-    position: {
-        x:  canvas.width - 10 *2,
-        y: 100
+    draw() {
+      c.fillStyle = 'white'
+      c.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
-})
+
+    update() {
+      this.draw()
+      const rightSide = this.position.x + this.width + this.velocity.x
+      const leftSide = this.position.x + this.velocity.x
+      const bottomSide = this.position.y + this.height
+      const topSide = this.position.y
+
+      // paddle 1 collision
+      if (
+        leftSide <= paddle1.position.x + paddle1.width &&
+        bottomSide >= paddle1.position.y &&
+        topSide <= paddle1.position.y + paddle1.height
+      ) {
+        this.velocity.x = -this.velocity.x
+      }
+
+      // paddle 2 collision
+      if (
+        rightSide >= paddle2.position.x &&
+        bottomSide >= paddle2.position.y &&
+        topSide <= paddle2.position.y + paddle2.height
+      ) {
+        this.velocity.x = -this.velocity.x
+      }
+
+      // reverse y directions
+      if (
+        this.position.y + this.height + this.velocity.y >= canvas.height ||
+        this.position.y + this.velocity.y <= 0
+      ) {
+        this.velocity.y = -this.velocity.y
+      }
+
+      this.position.x += this.velocity.x
+      this.position.y += this.velocity.y
+    }
+  }
 
 
+  const paddle1 = new Paddle({
+    position: {
+      x: 10,
+      y: 100,
+      color: 'white'
+    },
+    },'white')
 
-function animate() {
+  const paddle2 = new Paddle({
+    position: {
+      x: canvas.width - 10 * 2,
+      y: 100,
+      
+    },
+  }, 'green')
+
+  const ball = new Ball({
+    position: {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+    },
+  })
+
+  function animate() {
     requestAnimationFrame(animate)
     c.fillStyle = 'rgb(2,0,36)'
     c.fillRect(0, 0, canvas.width, canvas.height)
     paddle1.update()
     paddle2.update()
-}
 
-animate()
+    ball.update()
+  }
+
+  animate()
 
 
 addEventListener('keydown', (event) => {
