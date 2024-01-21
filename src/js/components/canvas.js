@@ -154,3 +154,26 @@ addEventListener('keydown', (event) => {
   })
 
 
+  addEventListener('keyup', (event) => {
+    switch (event.key) {
+      case 'w':
+        // go up
+        paddle1.velocity.y = 0
+        break
+      case 's':
+        // go down
+        paddle1.velocity.y =0
+        break
+
+      case 'ArrowUp':
+        // go up
+        paddle2.velocity.y = 0
+        break
+      case 'ArrowDown':
+        // go down
+        paddle2.velocity.y =0
+        break
+    }
+  })
+
+
