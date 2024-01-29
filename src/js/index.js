@@ -1,20 +1,8 @@
 import "../styles/main.sass"
 
-import { c, canvas, initializeCanvas ,initCanvasOnDOMReady } from './components/config'
+import { c, canvas } from './components/Config'
 import Paddle from "./components/Paddle"
-
-// initCanvasOnDOMReady()
-
-// const canvas = document.querySelector('.canvas')
-// const c = canvas.getContext('2d')
-
-// c.width = window.innerWidth
-// c.height = window.innerHeight
-
-console.log(`Variable C: ${c.width}`)
-
-console.log(window.innerWidth)
-console.log("hello world")
+import Box from "./components/Box"
 
 let leftScore = 0
 let rightScore = 0
@@ -24,155 +12,130 @@ let maxGameScore = 2
 const hasbullahLaugh = new Audio("https://www.myinstants.com/media/sounds/hasbulla-laugh.mp3")
 
 
-  class Box {
-    constructor({ position }, color) {
-      this.position = position;
-      this.color = color;
-      this.width = 200;
-      this.height = 20;
-      this.collisionsRemaining = 3; // Number of collisions before the box disappears
-      this.direction = 1; // 1 represents moving down, -1 represents moving up
-      this.moveDistance = 100; // Distance to move up or down
+class Ball {
+  constructor({ position }) {
+    this.position = position
+
+    const speed = 2
+    const direction = {
+      x: Math.random() - 0.5 >= 0 ? -speed : speed,
+      y: Math.random() - 0.5 >= 0 ? -speed : speed,
+    }
+    this.velocity = {
+      x: direction.x,
+      y: direction.y,
     }
 
-    draw() {
-        c.fillStyle = this.color;
-        c.fillRect(this.position.x, this.position.y, this.width, this.height);
-    }
+    this.width = 40
+    this.height = 40
 
-    update() {
-      // Update the box's position based on direction
-      this.position.y += this.direction * this.moveDistance;
+    this.lastPaddleHit = null; // To keep track of the last paddle hit
+  }
 
-      // Reverse direction if the box reaches the top or bottom
-      if (this.position.y <= 0 || this.position.y + this.height >= c.height) {
-          this.direction *= -1;
+  draw() {
+    c.fillStyle = 'white'
+    c.fillRect(this.position.x, this.position.y, this.width, this.height)
+  }
+
+  update() {
+    this.draw()
+
+    // Check if the ball collides with the box
+    if (
+      this.position.x < box.position.x + box.width &&
+      this.position.x + this.width > box.position.x &&
+      this.position.y < box.position.y + box.height &&
+      this.position.y + this.height > box.position.y
+  ) {
+      // Ball collides with the box
+      this.velocity.y = -this.velocity.y; // Reverse the y-direction
+      box.collisionsRemaining--;
+      console.log(`Collisions Remaining: ${box.collisionsRemaining}`)
+      console.log(`Last paddle hit: ${this.lastPaddleHit}`)
+
+      if (box.collisionsRemaining === 0) {
+          // Box disappears after 3 collisions
+          box.collisionsRemaining = 3; // Reset collisions count
+          box.position.y = -box.height; // Move the box off-screen
+
+          console.log(`Last paddle hit is: ${this.lastPaddleHit}`)
+          // Enlarge the last paddle hit for 5 seconds
+          if (this.lastPaddleHit) {
+            this.lastPaddleHit.enlargeForDuration(15);
+            console.log(`${this.lastPaddleHit}`)
+          
+        }
       }
+  }
+
+
+            // Check if the ball went off-screen
+            if (this.position.x + this.width + this.velocity.x < 0) {
+              // Ball goes off to the left, increment rightScore
+              rightScore++;
+              updateScores();
+              resetBall();
+          } else if (this.position.x + this.velocity.x > canvas.width) {
+              // Ball goes off to the right, increment leftScore
+              leftScore++;
+              updateScores();
+              resetBall();
+          }
+
+          updateScores()
+
+
+    const rightSide = this.position.x + this.width + this.velocity.x
+    const leftSide = this.position.x + this.velocity.x
+    const bottomSide = this.position.y + this.height
+    const topSide = this.position.y
+
+    // paddle 1 collision
+    if (
+      leftSide <= paddle1.position.x + paddle1.width &&
+      bottomSide >= paddle1.position.y &&
+      topSide <= paddle1.position.y + paddle1.height
+    ) {
+      this.velocity.x = -this.velocity.x
+      this.lastPaddleHit = paddle1;
+        console.log(`paddle1 is hit: ${this.lastPaddleHit}`)
     }
 
+    // paddle 2 collision
+    if (
+      rightSide >= paddle2.position.x &&
+      bottomSide >= paddle2.position.y &&
+      topSide <= paddle2.position.y + paddle2.height
+    ) {
+      this.velocity.x = -this.velocity.x
+      this.lastPaddleHit = paddle2;
+      console.log(`paddle2 is hit: ${this.lastPaddleHit}`)
+    }
+
+    // reverse y directions
+    if (
+      this.position.y + this.height + this.velocity.y >= canvas.height ||
+      this.position.y + this.velocity.y <= 0
+    ) {
+      this.velocity.y = -this.velocity.y
+    }
+
+    this.position.x += this.velocity.x
+    this.position.y += this.velocity.y
+  }
 }
+
 
 console.log(c)
 const box = new Box({
     position: {
-        x: (c.width) / 2,
-        y: (c.height) / 6,
+        x: (canvas.width) / 2,
+        y: (canvas.height) / 4,
 
     },
 }, 'yellow');
 
-  class Ball {
-    constructor({ position }) {
-      this.position = position
-
-      const speed = 2
-      const direction = {
-        x: Math.random() - 0.5 >= 0 ? -speed : speed,
-        y: Math.random() - 0.5 >= 0 ? -speed : speed,
-      }
-      this.velocity = {
-        x: direction.x,
-        y: direction.y,
-      }
-
-      this.width = 40
-      this.height = 40
-
-      this.lastPaddleHit = null; // To keep track of the last paddle hit
-    }
-
-    draw() {
-      c.fillStyle = 'white'
-      c.fillRect(this.position.x, this.position.y, this.width, this.height)
-    }
-
-    update() {
-      this.draw()
-
-      // Check if the ball collides with the box
-      if (
-        this.position.x < box.position.x + box.width &&
-        this.position.x + this.width > box.position.x &&
-        this.position.y < box.position.y + box.height &&
-        this.position.y + this.height > box.position.y
-    ) {
-        // Ball collides with the box
-        this.velocity.y = -this.velocity.y; // Reverse the y-direction
-        box.collisionsRemaining--;
-        console.log(`Collisions Remaining: ${box.collisionsRemaining}`)
-        console.log(`Last paddle hit: ${this.lastPaddleHit}`)
-
-        if (box.collisionsRemaining === 0) {
-            // Box disappears after 3 collisions
-            box.collisionsRemaining = 3; // Reset collisions count
-            box.position.y = -box.height; // Move the box off-screen
-
-            console.log(`Last paddle hit is: ${this.lastPaddleHit}`)
-            // Enlarge the last paddle hit for 5 seconds
-            if (this.lastPaddleHit) {
-              this.lastPaddleHit.enlargeForDuration(15);
-              console.log(`${this.lastPaddleHit}`)
-            
-          }
-        }
-    }
-
-
-              // Check if the ball went off-screen
-              if (this.position.x + this.width + this.velocity.x < 0) {
-                // Ball goes off to the left, increment rightScore
-                rightScore++;
-                updateScores();
-                resetBall();
-            } else if (this.position.x + this.velocity.x > c.width) {
-                // Ball goes off to the right, increment leftScore
-                leftScore++;
-                updateScores();
-                resetBall();
-            }
-
-            updateScores()
-
-
-      const rightSide = this.position.x + this.width + this.velocity.x
-      const leftSide = this.position.x + this.velocity.x
-      const bottomSide = this.position.y + this.height
-      const topSide = this.position.y
-
-      // paddle 1 collision
-      if (
-        leftSide <= paddle1.position.x + paddle1.width &&
-        bottomSide >= paddle1.position.y &&
-        topSide <= paddle1.position.y + paddle1.height
-      ) {
-        this.velocity.x = -this.velocity.x
-        this.lastPaddleHit = paddle1;
-          console.log(`paddle1 is hit: ${this.lastPaddleHit}`)
-      }
-
-      // paddle 2 collision
-      if (
-        rightSide >= paddle2.position.x &&
-        bottomSide >= paddle2.position.y &&
-        topSide <= paddle2.position.y + paddle2.height
-      ) {
-        this.velocity.x = -this.velocity.x
-        this.lastPaddleHit = paddle2;
-        console.log(`paddle2 is hit: ${this.lastPaddleHit}`)
-      }
-
-      // reverse y directions
-      if (
-        this.position.y + this.height + this.velocity.y >= c.height ||
-        this.position.y + this.velocity.y <= 0
-      ) {
-        this.velocity.y = -this.velocity.y
-      }
-
-      this.position.x += this.velocity.x
-      this.position.y += this.velocity.y
-    }
-  }
+  
 
   function updateScores() {
     // Update the scores displayed on the canvas
@@ -192,10 +155,10 @@ const box = new Box({
     }
 
     c.font = "30px Arial"
-    c.fillText(`Player 1`, c.width / 2 - 200, 50)
-    c.fillText(`Player 2`, c.width / 2 + 200, 50)
-    c.fillText(`${leftSetScore}:${leftScore}`, c.width / 2 - 170, 100)
-    c.fillText(`${rightSetScore}:${rightScore}`, c.width / 2 + 230, 100)
+    c.fillText(`Player 1`, canvas.width / 2 - 200, 50)
+    c.fillText(`Player 2`, canvas.width / 2 + 200, 50)
+    c.fillText(`${leftSetScore}:${leftScore}`, canvas.width / 2 - 170, 100)
+    c.fillText(`${rightSetScore}:${rightScore}`, canvas.width / 2 + 230, 100)
 
 }
 
@@ -203,14 +166,14 @@ function resetBall() {
     // Reset ball position to the center of the canvas
 
     let randomValue = Math.random()
-    let probability = .5
+    let probability = .2
 
     if(randomValue < probability) {
       hasbullahLaugh.play()
     }
 
-    ball.position.x = c.width / 2;
-    ball.position.y = c.height / 2;
+    ball.position.x = canvas.width / 2;
+    ball.position.y = canvas.height / 2;
 
     // Set velocity to zero (stop moving)
     ball.velocity.x = 0;
@@ -247,7 +210,7 @@ updateScores();
 
   const paddle2 = new Paddle({
     position: {
-      x: c.width - 10 * 2,
+      x: canvas.width - 10 * 2,
       y: 100,
       
     },
@@ -255,15 +218,15 @@ updateScores();
 
   const ball = new Ball({
     position: {
-      x: c.width / 2,
-      y: c.height / 2,
+      x: canvas.width / 2,
+      y: canvas.height / 2,
     },
   })
 
   function animate() {
     requestAnimationFrame(animate)
     c.fillStyle = 'rgb(2,0,36)'
-    c.fillRect(0, 0, c.width, c.height)
+    c.fillRect(0, 0, canvas.width, canvas.height)
     paddle1.update()
     paddle2.update()
 

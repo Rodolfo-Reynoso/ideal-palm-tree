@@ -1,4 +1,4 @@
-import { c } from "./config"
+import { c, canvas } from "./Config"
 
 
 class Paddle {
@@ -23,7 +23,7 @@ class Paddle {
 
       if (
         this.position.y + this.velocity.y > 0 &&
-        this.position.y + this.height + this.velocity.y < c.height
+        this.position.y + this.height + this.velocity.y < canvas.height
       )
         this.position.y += this.velocity.y
     }
