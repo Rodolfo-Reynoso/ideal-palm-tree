@@ -40,6 +40,8 @@ class Ball {
   update() {
     this.draw()
 
+    console.log(`Ball y position: ${this.position.y}`)
+
     // Check if the ball collides with the box
     if (
       this.position.x < box.position.x + box.width &&
@@ -156,7 +158,7 @@ const box = new Box({
 
     c.font = "30px Arial"
     c.fillText(`Player 1`, canvas.width / 2 - 200, 50)
-    c.fillText(`Player 2`, canvas.width / 2 + 200, 50)
+    c.fillText(`Skynet`, canvas.width / 2 + 200, 50)
     c.fillText(`${leftSetScore}:${leftScore}`, canvas.width / 2 - 170, 100)
     c.fillText(`${rightSetScore}:${rightScore}`, canvas.width / 2 + 230, 100)
 
@@ -223,13 +225,28 @@ updateScores();
     },
   })
 
+  function computerAI() {
+    const speed = 3;
+  
+    // Adjust the computer paddle's position based on the ball's position
+    if (paddle2.position.y + paddle2.height / 2 < Math.round(ball.position.y)) {
+      paddle2.velocity.y = speed;
+    } else if (paddle2.position.y + paddle2.height / 2 > Math.round(ball.position.y)) {
+      paddle2.velocity.y = -speed;
+    } else {
+      paddle2.velocity.y = 0;
+    }
+  }
+
   function animate() {
     requestAnimationFrame(animate)
     c.fillStyle = 'rgb(2,0,36)'
     c.fillRect(0, 0, canvas.width, canvas.height)
     paddle1.update()
-    paddle2.update()
 
+    paddle2.update()
+    // paddle2.draw()
+    computerAI()
     ball.update()
     box.draw();
   }
