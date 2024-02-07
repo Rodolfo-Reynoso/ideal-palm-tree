@@ -4,6 +4,8 @@ import { c, canvas } from './components/Config'
 import Paddle from "./components/Paddle"
 import Box from "./components/Box"
 
+let player = prompt("Please enter your name", "Player 1");
+
 let leftScore = 0
 let rightScore = 0
 let leftSetScore = 0
@@ -157,7 +159,8 @@ const box = new Box({
     }
 
     c.font = "30px Arial"
-    c.fillText(`Player 1`, canvas.width / 2 - 200, 50)
+    c.textAlign = 'center'
+    c.fillText(player, canvas.width / 2 - 200, 50)
     c.fillText(`Skynet`, canvas.width / 2 + 200, 50)
     c.fillText(`${leftSetScore}:${leftScore}`, canvas.width / 2 - 170, 100)
     c.fillText(`${rightSetScore}:${rightScore}`, canvas.width / 2 + 230, 100)
