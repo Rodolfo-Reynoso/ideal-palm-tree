@@ -4,7 +4,8 @@ import { c, canvas } from './components/Config'
 import Paddle from "./components/Paddle"
 import Box from "./components/Box"
 
-let player = prompt("Please enter your name", "Player 1");
+// let player = prompt("Please enter your name", "Player 1");
+let player = "Player 1";
 
 let leftScore = 0
 let rightScore = 0
@@ -28,6 +29,7 @@ class Ball {
       y: direction.y,
     }
 
+
     this.width = 40
     this.height = 40
 
@@ -36,13 +38,32 @@ class Ball {
 
   draw() {
     c.fillStyle = 'white'
-    c.fillRect(this.position.x, this.position.y, this.width, this.height)
+    c.font = "50px sans-serif"
+    let measureBallText = c.measureText("OH")
+    // console.log(measureBallText)
+
+
+    this.width = measureBallText.width;
+    this.height = measureBallText.actualBoundingBoxDescent
+
+ 
+
+    c.fillText("OH", this.position.x, this.position.y)
+
+
+
   }
 
   update() {
     this.draw()
 
-    console.log(`Ball y position: ${this.position.y}`)
+    // Draw the collision box
+    c.strokeStyle = 'red'; // Set the stroke color to blue
+    c.strokeRect(this.position.x, this.position.y, this.width, this.height);
+    c.font = "25px sans-serif"
+    // c.fillStyle = "green"
+    c.fillText(`x:${this.position.x},y:${this.position.y}`, this.position.x, this.position.y - 50)
+
 
     // Check if the ball collides with the box
     if (
@@ -54,15 +75,13 @@ class Ball {
       // Ball collides with the box
       this.velocity.y = -this.velocity.y; // Reverse the y-direction
       box.collisionsRemaining--;
-      console.log(`Collisions Remaining: ${box.collisionsRemaining}`)
-      console.log(`Last paddle hit: ${this.lastPaddleHit}`)
 
       if (box.collisionsRemaining === 0) {
           // Box disappears after 3 collisions
           box.collisionsRemaining = 3; // Reset collisions count
           box.position.y = -box.height; // Move the box off-screen
 
-          console.log(`Last paddle hit is: ${this.lastPaddleHit}`)
+
           // Enlarge the last paddle hit for 5 seconds
           if (this.lastPaddleHit) {
             this.lastPaddleHit.enlargeForDuration(15);
@@ -102,18 +121,25 @@ class Ball {
     ) {
       this.velocity.x = -this.velocity.x
       this.lastPaddleHit = paddle1;
-        console.log(`paddle1 is hit: ${this.lastPaddleHit}`)
     }
 
     // paddle 2 collision
     if (
-      rightSide >= paddle2.position.x &&
+      // I don't know why the + 45 is needed. It should be figured out. Currently
+      // with out the +45 the ball will go halfway through the N before it detects a collision.
+      rightSide + 45 >= paddle2.position.x &&
       bottomSide >= paddle2.position.y &&
       topSide <= paddle2.position.y + paddle2.height
     ) {
+
+      console.log(`Paddle 2 X Position: ${paddle2.position.x}`)
+      console.log(`Ball X Right Position: ${this.position.x + this.width }`)
+
       this.velocity.x = -this.velocity.x
       this.lastPaddleHit = paddle2;
-      console.log(`paddle2 is hit: ${this.lastPaddleHit}`)
+      console.log("I was hit")
+
+      
     }
 
     // reverse y directions
@@ -129,8 +155,6 @@ class Ball {
   }
 }
 
-
-console.log(c)
 const box = new Box({
     position: {
         x: (canvas.width) / 2,
@@ -208,18 +232,24 @@ updateScores();
   const paddle1 = new Paddle({
     position: {
       x: 10,
-      y: 100,
+      y: 200,
       color: 'white'
     },
-    },'white')
+    },'white',
+    'j')
 
+    console.log(paddle1)
+    
   const paddle2 = new Paddle({
     position: {
-      x: canvas.width - 10 * 2,
+      x: canvas.width - (108 / 2),
       y: 100,
       
     },
-  }, 'green')
+  }, 'green',
+  'n')
+
+  console.log(paddle2)
 
   const ball = new Ball({
     position: {
@@ -269,14 +299,14 @@ addEventListener('keydown', (event) => {
         paddle1.velocity.y = speed
         break
 
-      case 'ArrowUp':
-        // go up
-        paddle2.velocity.y = -speed
-        break
-      case 'ArrowDown':
-        // go down
-        paddle2.velocity.y = speed
-        break
+      // case 'ArrowUp':
+      //   // go up
+      //   paddle2.velocity.y = -speed
+      //   break
+      // case 'ArrowDown':
+      //   // go down
+      //   paddle2.velocity.y = speed
+      //   break
     }
   })
 
